@@ -1,0 +1,126 @@
+---
+title: "HW5"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+date: "2024-02-21"
+---
+Corinne Ward, cw42962, Github Link: 
+```{r, echo=FALSE, message=FALSE}
+library(ggplot2)
+library(mosaic)
+```
+# **Problem 1** 
+The null hypothesis I am testing is that the securities trade from the Iron Bank are not flagged at the same 2.4% baseline rate as that of other traders. I used the 2021 statistic to test the null hypothesis and added the number of times the result was greater than or equal to 70 which was the number of flagged trades. The p-value I calculated is .00331. The p-value presents a finding that needs more data to be understood. It shows there is value in putting more effort into this topic but this research could also lead to nothing. 
+```{r, echo = FALSE, results='hide'}
+sim_sec = do(10000)*nflip(n=2021, prob = 0.024)
+ggplot(sim_sec)+ geom_histogram(aes(x = nflip), binwidth = 1)
+sum(sim_sec >= 70)
+```
+
+
+# **Problem 2**
+The null hypothesis for this experiment is that restaurants in the city are not cited for health code violations at the same 3% baseline rate. To test the null hypothesis I am using the value 50 and adding the sum of the results that were greater than eight because there were 8 health code violations out of the 50 resturants tested. The p-value I got is .00015. Based on my p-value, the null hypothesis is not true.
+```{r, echo = FALSE, results='hide'}
+sim_health = do(100000)*nflip(n=50, prob = 0.03)
+ggplot(sim_health)+ geom_histogram(aes(x = nflip), binwidth = 1)
+sum(sim_health >= 8)
+```
+
+# **Problem 3**
+
+Part A:
+
+```{r, echo = FALSE, results='hide'}
+letterfrequencies <- read.csv("letter_frequencies.csv")
+brown <-readLines("brown_sentences.txt")
+calculate_chi_squared = function(brown, letterfrequencies) {
+  
+  # Ensure letter frequencies are normalized and sum to 1
+  letterfrequencies$Probability = letterfrequencies$Probability / sum(letterfrequencies$Probability)
+  chi_squared_stats <- numeric(length(brown))
+  # Remove non-letters and convert to uppercase
+  for (i in seq_along(brown)){
+    clean_sentence = gsub("[^A-Za-z]", "", brown[i])
+    clean_sentence = toupper(clean_sentence)
+    
+    # Count the occurrences of each letter in the sentence
+    observed_counts = table(factor(strsplit(clean_sentence, "")[[1]], levels = letterfrequencies$Letter))
+    
+    # Calculate expected counts
+    total_letters = sum(observed_counts)
+    expected_counts = total_letters * letterfrequencies$Probability
+    
+    # Chi-squared statistic
+    chi_squared_stats[i] = sum((observed_counts - expected_counts)^2 / expected_counts)
+  }
+  return(chi_squared_stats)
+}
+
+
+brown_chi_squared <- calculate_chi_squared(brown, letterfrequencies)
+brown_chi_squared_data <- as.data.frame(brown_chi_squared)
+ggplot(brown_chi_squared_data) + geom_histogram(aes(x = brown_chi_squared), binwidth = 3) + labs(x = "Chi Squared Values", title = "Null Distribution")
+
+```
+
+Part B:
+```{r, echo = FALSE}
+sentences <- c(
+  "She opened the book and started to read the first chapter, eagerly anticipating what might come next.",
+  "Despite the heavy rain, they decided to go for a long walk in the park, crossing the main avenue by the fountain in the center.",
+  "The museum’s new exhibit features ancient artifacts from various civilizations around the world.",
+  "He carefully examined the document, looking for any clues that might help solve the mystery.",
+  "The students gathered in the auditorium to listen to the guest speaker’s inspiring lecture.",
+  "Feeling vexed after an arduous and zany day at work, she hoped for a peaceful and quiet evening at home, cozying up after a quick dinner with some TV, or maybe a book on her upcoming visit to Auckland.",
+  "The chef demonstrated how to prepare a delicious meal using only locally sourced ingredients, focusing mainly on some excellent dinner recipes from Spain.",
+  "They watched the sunset from the hilltop, marveling at the beautiful array of colors in the sky.",
+  "The committee reviewed the proposal and provided many points of useful feedback to improve the project’s effectiveness.",
+  "Despite the challenges faced during the project, the team worked tirelessly to ensure its successful completion, resulting in a product that exceeded everyone’s expectations."
+)
+letterfrequencies <- read.csv("letter_frequencies.csv")
+calculate_chi_squared = function(sentences, letterfrequencies) {
+  
+  # Ensure letter frequencies are normalized and sum to 1
+  letterfrequencies$Probability = letterfrequencies$Probability / sum(letterfrequencies$Probability)
+  chi_squared_stats <- numeric(length(sentences))
+  # Remove non-letters and convert to uppercase
+  for (i in seq_along(sentences)){
+    clean_sentence = gsub("[^A-Za-z]", "", sentences[i])
+    clean_sentence = toupper(clean_sentence)
+    
+    # Count the occurrences of each letter in the sentence
+    observed_counts = table(factor(strsplit(clean_sentence, "")[[1]], levels = letterfrequencies$Letter))
+    
+    # Calculate expected counts
+    total_letters = sum(observed_counts)
+    expected_counts = total_letters * letterfrequencies$Probability
+    
+    # Chi-squared statistic
+    chi_squared_stats[i] = sum((observed_counts - expected_counts)^2 / expected_counts)
+  }
+  return(chi_squared_stats)
+}
+sentences_chi_squared <- calculate_chi_squared(sentences, letterfrequencies)
+sentences_chi_squared <- as.data.frame(sentences_chi_squared)
+#sentences_chi_squared %>%
+  #mutate(sentences_chi_squared, sentences_chi_squared = round(sentences_chi_squared, 3))
+
+p_1 = round(sum(1*(brown_chi_squared>=22.930848))/length(brown_chi_squared),3)
+p_2 = round(sum(1*(brown_chi_squared>=13.051050))/length(brown_chi_squared),3)
+p_3 = round(sum(1*(brown_chi_squared>=46.285861))/length(brown_chi_squared),3)
+p_4 = round(sum(1*(brown_chi_squared>=23.546278))/length(brown_chi_squared),3)
+p_5 = round(sum(1*(brown_chi_squared>=23.676149))/length(brown_chi_squared),3)
+p_6 = round(sum(1*(brown_chi_squared>=96.452677))/length(brown_chi_squared),3)
+p_7 = round(sum(1*(brown_chi_squared>=28.271419))/length(brown_chi_squared),3)
+p_8 = round(sum(1*(brown_chi_squared>=9.635023))/length(brown_chi_squared),3)
+p_9 = round(sum(1*(brown_chi_squared>=44.928631))/length(brown_chi_squared),3)
+p_10 = round(sum(1*(brown_chi_squared>=49.960559))/length(brown_chi_squared),3)
+
+sentence <- c(1,2,3,4,5,6,7,8,9,10)
+p_values <- c(p_1, p_2, p_3, p_4, p_5, p_6, p_7, p_8, p_9, p_10)
+tibble(sentence, p_values)
+#sentence 6 is wrong 
+```
+Sentence six has been created by a LLM because the p-value is the smallest at 0.009. The p-value shows that the letter frequency did not follow the expected frequency showing it was writen by a LLM. 
